@@ -49,6 +49,7 @@ class Home extends CI_Controller
 
         if($sPage == '')
         {
+            $aViewParameter['page']         =   'setting';
             
             if($this->input->post('command') == 'Save Setting')
             {
@@ -462,6 +463,17 @@ class Home extends CI_Controller
             redirect(site_url('home/setting/'));
     }
 
+    public function systemStatus()
+    {
+        $aViewParameter['page'] ='status';
+        
+        $this->checkSettingsSaved();
+        $sResponse      =   get_rlb_status();
+
+        $aViewParameter['response'] =$sResponse['response'];
+         
+        $this->load->view('Status',$aViewParameter);
+    }
     
 }
 
