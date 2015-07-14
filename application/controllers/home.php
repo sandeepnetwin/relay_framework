@@ -334,9 +334,9 @@ class Home extends CI_Controller
         $iValveCount    =   strlen($sValves);
         $iPowerCount    =   strlen($sPowercenter);
 
-        //$iMode          =   $this->home_model->getActiveMode();
-        $iMode          =   $this->uri->segment('3');
-        $sTime          =   date('H:i:s',time());
+        $iMode          =   $this->home_model->getActiveMode();
+        //$iMode          =   $this->uri->segment('3');
+        //$sTime          =   date('H:i:s',time());
         $aAllProgram    =   $this->home_model->getAllProgramsDetails();
         
         // die;
@@ -388,15 +388,15 @@ class Home extends CI_Controller
                         if($sTime >= $sProgramStart && $sProgramActive == 0 && $sProgramAbsRun == 0)
                         {
                             $iRelayStatus = 1;
-                            //$sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            //onoff_rlb_relay($sRelayNewResp);
+                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
+                            onoff_rlb_relay($sRelayNewResp);
                             $this->home_model->updateProgramStatus($iProgId, 1);
                         }
                         else if($sTime >= $sProgramAbsEnd && $sProgramActive == 1)
                         {
                             $iRelayStatus = 0;
-                            //$sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            //onoff_rlb_relay($sRelayNewResp);
+                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
+                            onoff_rlb_relay($sRelayNewResp);
                             $this->home_model->updateProgramStatus($iProgId, 0);
                             $this->home_model->updateAbsProgramRun($iProgId, '1');
                         }
@@ -406,8 +406,8 @@ class Home extends CI_Controller
                         if($sProgramActive == 1)
                         {
                             $iRelayStatus = 0;
-                            //$sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            //onoff_rlb_relay($sRelayNewResp);
+                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
+                            onoff_rlb_relay($sRelayNewResp);
                             $this->home_model->updateProgramStatus($iProgId, 0);
                             $this->home_model->updateAlreadyRunTime($iProgId, $aAbsoluteDetails);
                         }
@@ -420,16 +420,16 @@ class Home extends CI_Controller
                             if($iMode == 1)
                             {
                                 $iRelayStatus = 1;
-                                //$sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                                //onoff_rlb_relay($sRelayNewResp);
+                                $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
+                                onoff_rlb_relay($sRelayNewResp);
                                 $this->home_model->updateProgramStatus($iProgId, 1);
                             }
                         }//off relay
                         else if($sTime >= $sProgramEnd && $sProgramActive == 1)
                         {
                             $iRelayStatus = 0;
-                            //$sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            //onoff_rlb_relay($sRelayNewResp);
+                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
+                            onoff_rlb_relay($sRelayNewResp);
                             $this->home_model->updateProgramStatus($iProgId, 0);
                         }
                     } 
