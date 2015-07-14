@@ -21,6 +21,13 @@ if($sPort == '')
                 Details saved successfully! 
               </div>
             <?php } ?>
+            <?php if($err_sucess == '1') { ?>
+              <div class="alert alert-success alert-dismissable" style="background-color: #FFC0CB;border: 1px solid #FFC0CB; color:red;">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                IP and Port details required! 
+              </div>
+            <?php } ?>
+            
           </div>
         </div><!-- /.row -->
         <div class="row">

@@ -17,6 +17,8 @@ class Home extends CI_Controller
     {
         $aViewParameter['page'] ='home';
 
+        $this->checkSettingsSaved();
+
         $sResponse      =   get_rlb_status();
         //$sResponse      =   array('valves'=>'0120','powercenter'=>'0000','time'=>'','relay'=>'0000');
         $sValves        =   $sResponse['valves'];
@@ -35,8 +37,10 @@ class Home extends CI_Controller
 
     public function setting()
     {
-        $aViewParameter['page']      =   'home';
-        $aViewParameter['sucess']    =   '0';
+        $aViewParameter['page']         =   'home';
+        $aViewParameter['sucess']       =   '0';
+        $aViewParameter['err_sucess']   =   '0';
+        
         $sPage  =   $this->uri->segment('3'); 
 
         $this->load->model('home_model');
@@ -54,44 +58,66 @@ class Home extends CI_Controller
                 $sIP    =   $this->input->post('relay_ip_address');
                 $sPort  =   $this->input->post('relay_port_no');
 
-                if($sIP != '')
+                if($sIP == '')
                 {
-                    $this->home_model->updateSetting($sIP,$sPort);
+                    if(IP_ADDRESS){
+                        $sIP = IP_ADDRESS;
+                    }
                 }
-                    
-                $this->home_model->updateMode($iMode);
-
-                $sResponse      =   get_rlb_status();
-                $sValves        =   $sResponse['valves'];
-                $sRelays        =   $sResponse['relay'];
-                $sPowercenter   =   $sResponse['powercenter'];
-
-                if($iMode == 3 || $iMode == 1){ //1-auto, 2-manual, 3-timeout
-                    //off all relays
-                    if($sRelays != '')
-                    {
-                        $sRelayNewResp = str_replace('1','0',$sRelays);
-                        onoff_rlb_relay($sRelayNewResp);
+                
+                //Check for Port Number constant
+                if($sPort == '')
+                {   
+                    if(PORT_NO){
+                        $sPort = PORT_NO;
                     }
-                    
-                    //off all valves
-                    if($sValves != '')
-                    {
-                        $sValveNewResp = str_replace(array('1','2'), '0', $sValves);
-                        onoff_rlb_valve($sValveNewResp);  
-                    }
-                    
-                    //off all power center
-                    if($sPowercenter != '')
-                    {
-                        $sPowerNewResp = str_replace('1','0',$sPowercenter);  
-                        onoff_rlb_powercenter($sPowerNewResp); 
-                    }
+                }
 
+                if($sIP == '' || $sPort == '')
+                {
+                    $aViewParameter['err_sucess']    =   '1';
+                }
+                else
+                {
+                
+                    $this->home_model->updateSetting($sIP,$sPort);
+                    
+                    $this->home_model->updateMode($iMode);
+
+                    $sResponse      =   get_rlb_status();
+                    $sValves        =   $sResponse['valves'];
+                    $sRelays        =   $sResponse['relay'];
+                    $sPowercenter   =   $sResponse['powercenter'];
+
+                    if($iMode == 3 || $iMode == 1)
+                    { //1-auto, 2-manual, 3-timeout
+                        //off all relays
+                        if($sRelays != '')
+                        {
+                            $sRelayNewResp = str_replace('1','0',$sRelays);
+                            onoff_rlb_relay($sRelayNewResp);
+                        }
+                        
+                        //off all valves
+                        if($sValves != '')
+                        {
+                            $sValveNewResp = str_replace(array('1','2'), '0', $sValves);
+                            onoff_rlb_valve($sValveNewResp);  
+                        }
+                        
+                        //off all power center
+                        if($sPowercenter != '')
+                        {
+                            $sPowerNewResp = str_replace('1','0',$sPowercenter);  
+                            onoff_rlb_powercenter($sPowerNewResp); 
+                        }
+
+                    }
+                     $aViewParameter['sucess']    =   '1';
                 }
 
                 
-                $aViewParameter['sucess']    =   '1';
+               
             }
             
             $aModes =   $this->home_model->getAllModes();
@@ -113,6 +139,8 @@ class Home extends CI_Controller
         }
         else
         {
+            $this->checkSettingsSaved();
+
             $sResponse      =   get_rlb_status();
             //$sResponse      =   array('valves'=>'','powercenter'=>'0000','time'=>'','relay'=>'0000');
             $sValves        =   $sResponse['valves'];
@@ -170,7 +198,7 @@ class Home extends CI_Controller
         {
             //echo $sStatus;
             $sNewResp = replace_return($sValves, $sStatus, $sName );
-            //onoff_rlb_valve($sNewResp);
+            onoff_rlb_valve($sNewResp);
         }
 
         exit;
@@ -408,6 +436,30 @@ class Home extends CI_Controller
             }
         }
 
+    }
+
+    public function checkSettingsSaved()
+    {
+        $this->load->model('home_model');
+        list($sIpAddress, $sPortNo) = $this->home_model->getSettings();
+        
+        if($sIpAddress == '')
+        {
+            if(IP_ADDRESS){
+                $sIpAddress = IP_ADDRESS;
+            }
+        }
+        
+        //Check for Port Number constant
+        if($sPortNo == '')
+        {   
+            if(PORT_NO){
+                $sPortNo = PORT_NO;
+            }
+        }
+
+        if($sIpAddress == '' || $sPortNo == '')
+            redirect(site_url('home/setting/'));
     }
 
     
