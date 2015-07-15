@@ -52,7 +52,7 @@ $this->load->view('Header');
                                         $sDeviceNameDb  .= ' ('.$sNameDb.')';
 
                                     $sSelect = '';
-                                    if($aAllAnalogDevice[$d] == $i.'_R')
+                                    if(!empty($aAllAnalogDevice) && $aAllAnalogDevice[$d] == $i.'_R')
                                       $sSelect = 'selected="selected"';
 
                                         
@@ -72,14 +72,14 @@ $this->load->view('Header');
                                         $sDeviceNameDb  .= ' ('.$sNameDb.')';
 
                                     $sSelect = '';
-                                    if($aAllAnalogDevice[$d] == $i.'_V')
+                                    if(!empty($aAllAnalogDevice) && $aAllAnalogDevice[$d] == $i.'_V')
                                       $sSelect = 'selected="selected"';  
                                       
                                     $sSelectDevice  .='<option value="'.$i.'_V" '.$sSelect.'>'.$sDeviceNameDb.'</option>';
                                 }
                             }
 
-                            if($sValves != '')
+                            if($sPowercenter != '')
                             {
                                 for ($i=0;$i < $power_count; $i++)
                                 {
@@ -91,7 +91,7 @@ $this->load->view('Header');
                                         $sDeviceNameDb  .= ' ('.$sNameDb.')';
 
                                     $sSelect = '';
-                                    if($aAllAnalogDevice[$d] == $i.'_P')
+                                    if(!empty($aAllAnalogDevice) && $aAllAnalogDevice[$d] == $i.'_P')
                                       $sSelect = 'selected="selected"';   
                                       
                                     $sSelectDevice  .='<option value="'.$i.'_P" '.$sSelect.'>'.$sDeviceNameDb.'</option>';
