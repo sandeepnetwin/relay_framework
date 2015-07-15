@@ -162,6 +162,11 @@
 		$aReturn['temp_sensor_3'] = $aResponse['18'];
 		$aReturn['temp_sensor_4'] = $aResponse['19'];
 		$aReturn['temp_sensor_5'] = $aResponse['20'];
+
+		$aReturn['AP0'] = $aResponse['10'];
+		$aReturn['AP1'] = $aResponse['11'];
+		$aReturn['AP2'] = $aResponse['12'];
+		$aReturn['AP3'] = $aResponse['13'];		
 				
 		$aReturn['push'] = $aResponse['22'];
 		$aReturn['level_sensor_instant'] = $aResponse['21'];

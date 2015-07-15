@@ -257,7 +257,7 @@ class Home_model extends CI_Model
     public function getAllProgramsDetails()
     {
         $this->db->where('relay_prog_delete','0');
-        $this->db->where('relay_prog_id','7');
+        //$this->db->where('relay_prog_id','7');
         $query = $this->db->get('rlb_relay_prog');
 
         if($query->num_rows() > 0)
@@ -371,6 +371,8 @@ class Home_model extends CI_Model
         $this->db->where('relay_prog_id', $iProgId);
         $this->db->update('rlb_relay_prog', $data);
     }
+
+   
 }
 
 /* End of file home_model.php */

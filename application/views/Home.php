@@ -138,6 +138,34 @@ $this->load->view('Header');
               </a>
             </div>
           </div>
+
+          <div class="col-lg-3">
+            <div class="panel panel-danger">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-6">
+                    <i class="fa fa-tasks fa-5x"></i>
+                  </div>
+                  <div class="col-xs-6 text-right">
+                    <p class="announcement-heading">4</p>
+                    <p class="announcement-text">Analog Input</p>
+                  </div>
+                </div>
+              </div>
+              <a href="<?php echo site_url('analog/');?>">
+                <div class="panel-footer announcement-bottom">
+                  <div class="row">
+                    <div class="col-xs-6">
+                      Assign device to Analog Input
+                    </div>
+                    <div class="col-xs-6 text-right">
+                      <i class="fa fa-arrow-circle-right"></i>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div> 
         </div><!-- /.row -->
       </div><!-- /#page-wrapper -->
 <script type="text/javascript">

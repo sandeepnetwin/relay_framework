@@ -40,8 +40,8 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li <?php echo  $pg =='home' ? 'class="active"' : '' ?>><a href="<?php echo base_url(); ?>">Dashboard</a></li>
-            <li <?php echo  $pg =='blog' ? 'class="active"' : '' ?>><a href="<?php echo base_url('home/setting'); ?>">Setting</a></li>
-            <li <?php echo  $pg =='blog' ? 'class="active"' : '' ?>><a href="javascript:void(0);">Blog</a></li>
+            <li <?php echo  $pg =='setting' ? 'class="active"' : '' ?>><a href="<?php echo base_url('home/setting'); ?>">Setting</a></li>
+            <li <?php echo  $pg =='status' ? 'class="active"' : '' ?>><a href="<?php echo base_url('home/systemStatus'); ?>">Status</a></li>
             <li <?php echo  $pg =='aboutus' ? 'class="active"' : '' ?>><a href="javascript:void(0);">About Us</a></li>
           </ul>
         </div><!--/.navbar-collapse -->
