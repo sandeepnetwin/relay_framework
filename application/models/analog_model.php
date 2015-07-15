@@ -68,6 +68,17 @@ class Analog_model extends CI_Model
                         $this->db->where('analog_id', $aResult->analog_id);
                         $this->db->update('rlb_analog_device', $data);                    
                     }
+                }
+                else
+                {
+                    $data = array('analog_input'  => $key,
+                                  'analog_name'    => 'AP'.$key,
+                                  'analog_device'    => '',
+                                  'analog_device_type'  => '',
+                                  'analog_device_modified_date' => date('Y-m-d H:i:s')
+                                  );
+
+                    $this->db->insert('rlb_analog_device', $data);
                 }   
             }
 
