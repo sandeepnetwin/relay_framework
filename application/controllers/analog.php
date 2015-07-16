@@ -65,7 +65,7 @@ class Analog extends CI_Controller
 
     public function checkAnalogResponse()
     {
-        $seconds = 1.5;
+        $seconds = 2;
         $micro = $seconds * 1000000;
         $this->load->model('analog_model');
 
@@ -108,6 +108,58 @@ class Analog extends CI_Controller
         }
 
         usleep($micro);
+    }
+
+    public function changeMode()
+    {
+        $aViewParameter['sucess']       =   '0';
+        $aViewParameter['err_sucess']   =   '0';
+        $aViewParameter['page']         =   'home';
+
+        $this->load->model('home_model');
+
+        if($this->input->post('iMode') != '')
+        {
+            $iMode = $this->input->post('iMode');
+            $this->home_model->updateMode($iMode);
+
+            $sResponse      =   get_rlb_status();
+            $sValves        =   $sResponse['valves'];
+            $sRelays        =   $sResponse['relay'];
+            $sPowercenter   =   $sResponse['powercenter'];
+
+            if($iMode == 3 || $iMode == 1)
+            { //1-auto, 2-manual, 3-timeout
+                //off all relays
+                if($sRelays != '')
+                {
+                    $sRelayNewResp = str_replace('1','0',$sRelays);
+                    onoff_rlb_relay($sRelayNewResp);
+                }
+                
+                //off all valves
+                if($sValves != '')
+                {
+                    $sValveNewResp = str_replace(array('1','2'), '0', $sValves);
+                    onoff_rlb_valve($sValveNewResp);  
+                }
+                
+                //off all power center
+                if($sPowercenter != '')
+                {
+                    $sPowerNewResp = str_replace('1','0',$sPowercenter);  
+                    onoff_rlb_powercenter($sPowerNewResp); 
+                }
+
+            }
+             $aViewParameter['sucess']    =   '1';
+
+        }
+
+        $aViewParameter['iMode']  =   $this->home_model->getActiveMode();
+
+        $this->load->view("Mode",$aViewParameter);
+
     }
 }
 
