@@ -43,6 +43,16 @@
             <li <?php echo  $pg =='setting' ? 'class="active"' : '' ?>><a href="<?php echo base_url('home/setting'); ?>">Setting</a></li>
             <li <?php echo  $pg =='status' ? 'class="active"' : '' ?>><a href="<?php echo base_url('home/systemStatus'); ?>">Status</a></li>
             <li <?php echo  $pg =='aboutus' ? 'class="active"' : '' ?>><a href="javascript:void(0);">About Us</a></li>
+            
+          </ul>
+          <ul class="nav navbar-nav navbar-right navbar-user">
+            <li class="dropdown user-dropdown">
+              <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="fa fa-user"></i> <?php echo $this->session->userdata('username');?> <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="<?php echo base_url('dashboard/logout'); ?>"><i class="fa fa-power-off"></i>Log Out</a></li>
+              </ul>
+            </li>
+              
           </ul>
         </div><!--/.navbar-collapse -->
       </div>

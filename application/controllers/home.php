@@ -11,6 +11,9 @@ class Home extends CI_Controller
         parent::__construct();
         $this->load->library('form_validation');
         $this->load->helper('common_functions');
+        if (!$this->session->userdata('is_admin_login')) {
+            redirect('dashboard/login/');
+        }
     }
 
     public function index() 
@@ -34,6 +37,7 @@ class Home extends CI_Controller
         $this->load->view('Home',$aViewParameter);
 
     }
+  
 
     public function setting()
     {
