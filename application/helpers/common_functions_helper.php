@@ -209,6 +209,14 @@
 		$sResponse = send_to_rlb($sUrl);		
 		return $sResponse;
 	}
+
+	function onoff_rlb_pump($sRelayStatus){
+		echo $sUrl = 'm '.$sRelayStatus;
+		$sResponse = send_to_rlb($sUrl);		
+		return $sResponse;
+	}
+
+	
 	
 	function switch_arrays($aOrig, $aNew){
 		$aReturn = array();

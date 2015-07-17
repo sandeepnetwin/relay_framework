@@ -327,12 +327,11 @@ class Home_model extends CI_Model
                 $sProgramAbsEnd   =   mktime(($aStartTime[0]+$aAlreadyRunTime[0]),($aStartTime[1]+$aAlreadyRunTime[1]),($aStartTime[2]+$aAlreadyRunTime[2]),0,0,0);
                 $sAbsoluteEnd     =   date("H:i:s", $sProgramAbsEnd);
 
-                $data = array(
-                                'relay_prog_absolute_start_time'  => $sProgramAbsStart,
-                               'relay_prog_absolute_end_time'    => $sAbsoluteEnd,
-                               'relay_prog_absolute_run_time'    => '',
-                              'relay_prog_absolute_start_date'  => date('Y-m-d'),
-                              'relay_prog_absolute_run'         => $sProgramAbsRunStatus
+                $data = array(  'relay_prog_absolute_start_time'  => $sProgramAbsStart,
+                                'relay_prog_absolute_end_time'    => $sAbsoluteEnd,
+                                'relay_prog_absolute_run_time'    => '',
+                                'relay_prog_absolute_start_date'  => date('Y-m-d'),
+                                'relay_prog_absolute_run'         => $sProgramAbsRunStatus
                               );
 
                 $this->db->where('relay_prog_id', $iProgId);
@@ -372,7 +371,64 @@ class Home_model extends CI_Model
         $this->db->update('rlb_relay_prog', $data);
     }
 
-   
+   public function getPumpDetails($sDeviceID)
+   {
+       if($sDeviceID == '')
+           return '';
+       $query = $this->db->get_where('rlb_pump_device',array('pump_number'=>$sDeviceID));
+
+       if($query->num_rows() > 0)
+       {
+            return $query->result();
+       }
+
+       return '';
+   }
+
+   public function savePumpDetails($aPost,$sDeviceID)
+   {
+        $sPumpClosure   =   $aPost['sPumpClosure'];
+        $sPumpType      =   $aPost['sPumpType'];
+        $sPumpSpeed     =   '';
+        $sPumpFlow      =   '';
+
+        if($sPumpType == '2')
+            $sPumpSpeed     =   $aPost['sPumpSpeed'];
+        if($sPumpType == '3')
+            $sPumpFlow      =   $aPost['sPumpFlow'];
+        
+        $this->db->select('pump_id');
+        $query = $this->db->get_where('rlb_pump_device', array('pump_number' => $sDeviceID));
+
+        if($query->num_rows() > 0)
+        {
+            foreach($query->result() as $aResult)
+            {
+                $data = array('pump_number'         => $sDeviceID,
+                              'pump_type'           => $sPumpType,
+                              'pump_speed'          => $sPumpSpeed,
+                              'pump_flow'           => $sPumpFlow,
+                              'pump_closure'        => $sPumpClosure,
+                              'pump_modified_date'  => date('Y-m-d H:i:s')   
+                              );
+
+                $this->db->where('pump_id', $aResult->pump_id);
+                $this->db->update('rlb_pump_device', $data);
+            }
+        }
+        else
+        {
+            $data = array('pump_number'         => $sDeviceID,
+                          'pump_type'           => $sPumpType,
+                          'pump_speed'          => $sPumpSpeed,
+                          'pump_flow'           => $sPumpFlow,
+                          'pump_closure'        => $sPumpClosure,
+                          'pump_modified_date'  => date('Y-m-d H:i:s')   
+                          );
+
+            $this->db->insert('rlb_pump_device', $data);
+        }    
+   }
 }
 
 /* End of file home_model.php */

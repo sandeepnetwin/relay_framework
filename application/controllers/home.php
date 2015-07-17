@@ -23,16 +23,20 @@ class Home extends CI_Controller
         $this->checkSettingsSaved();
 
         $sResponse      =   get_rlb_status();
-        //$sResponse      =   array('valves'=>'0120','powercenter'=>'0000','time'=>'','relay'=>'0000');
+
+        //$sResponse    =   array('valves'=>'0120','powercenter'=>'0000','time'=>'','relay'=>'0000');
         $sValves        =   $sResponse['valves'];
         $sRelays        =   $sResponse['relay'];
         $sPowercenter   =   $sResponse['powercenter'];
         $sTime          =   $sResponse['time'];
+        $sPump          =   array($sResponse['pump_seq_0_st'],$sResponse['pump_seq_1_st'],$sResponse['pump_seq_2_st']);
           
         $aViewParameter['relay_count']  =   strlen($sRelays);
         $aViewParameter['valve_count']  =   strlen($sValves);
         $aViewParameter['power_count']  =   strlen($sPowercenter);
         $aViewParameter['time']         =   $sTime;
+
+        $aViewParameter['pump_count']   =   count($sPump);
 
         $this->load->view('Home',$aViewParameter);
 
@@ -152,23 +156,22 @@ class Home extends CI_Controller
             $sRelays        =   $sResponse['relay'];
             $sPowercenter   =   $sResponse['powercenter'];
             $sTime          =   $sResponse['time'];
+            $sPump          =   array($sResponse['pump_seq_0_st'],$sResponse['pump_seq_1_st'],$sResponse['pump_seq_2_st']);
 
-            $aViewParameter['relay_count']  =   strlen($sRelays);
-            $aViewParameter['valve_count']  =   strlen($sValves);
-            $aViewParameter['power_count']  =   strlen($sPowercenter);
-            $aViewParameter['time']         =   $sTime;
 
-            $aViewParameter['sRelays']        =   $sRelays; 
-            $aViewParameter['sPowercenter']   =   $sPowercenter;
-            $aViewParameter['sValves']        =   $sValves;
+            $aViewParameter['relay_count']      =   strlen($sRelays);
+            $aViewParameter['valve_count']      =   strlen($sValves);
+            $aViewParameter['power_count']      =   strlen($sPowercenter);
+            $aViewParameter['time']             =   $sTime;
+            $aViewParameter['pump_count']       =   count($sPump);
 
-            $aViewParameter['sDevice']        =   $sPage;
-            /*if($sPage == 'relay')
-               $aViewParameter['sDevice']        =   'R'; 
-            else if($sPage == 'power')
-               $aViewParameter['sDevice']        =   'P'; 
-            else if($sPage == 'valve')
-               $aViewParameter['sDevice']        =   'V';  */
+            $aViewParameter['sRelays']          =   $sRelays; 
+            $aViewParameter['sPowercenter']     =   $sPowercenter;
+            $aViewParameter['sValves']          =   $sValves;
+            $aViewParameter['sPump']            =   $sPump;
+
+            $aViewParameter['sDevice']          =   $sPage;
+            
 
             $this->load->view('Device',$aViewParameter); 
         }
@@ -205,6 +208,32 @@ class Home extends CI_Controller
             $sNewResp = replace_return($sValves, $sStatus, $sName );
             onoff_rlb_valve($sNewResp);
         }
+        if($sDevice == 'PS')
+        {
+            $sNewResp = '';
+
+            if($sStatus == '0')
+                $sNewResp =  $sName.' '.$sStatus;
+            else if($sStatus == '1')
+            {
+                $this->load->model('home_model');
+                $aPumpDetails   =   $this->home_model->getPumpDetails($sName);
+                foreach($aPumpDetails as $aResultPumpDetails)
+                {
+                    $sType          =   '';
+
+                    if($aResultPumpDetails->pump_type == '2')
+                        $sType  =   $aResultPumpDetails->pump_type.' '.$aResultPumpDetails->pump_speed;
+                    elseif ($aResultPumpDetails->pump_type == '3')
+                        $sType  =   $aResultPumpDetails->pump_type.' '.$aResultPumpDetails->pump_flow;
+
+                    $sNewResp =  $sName.' '.$sType;    
+                }
+                
+            }    
+            onoff_rlb_pump($sNewResp);
+        }
+
 
         exit;
     }
@@ -322,125 +351,32 @@ class Home extends CI_Controller
         $this->load->view('Programs',$aViewParameter); 
     }
 
-    public function program()
+    public function pumpConfigure()
     {
+        $aViewParameter['page']      =   'home';
+        $aViewParameter['sucess']    =   '0';
+        $sDeviceID      =   base64_decode($this->uri->segment('3'));
+       
         $this->load->model('home_model');
-        $sResponse      =   get_rlb_status();
-        //$sResponse      =   array('valves'=>'','powercenter'=>'0000','time'=>'','relay'=>'0000','day'=>'');
-        $sValves        =   $sResponse['valves'];
-        $sRelays        =   $sResponse['relay'];
-        $sPowercenter   =   $sResponse['powercenter'];
-        $sTime          =   $sResponse['time'];
-        $sDayret        =   $sResponse['day'];
-        $aTime          =   explode(':',$sTime);
 
-        $iRelayCount    =   strlen($sRelays);
-        $iValveCount    =   strlen($sValves);
-        $iPowerCount    =   strlen($sPowercenter);
-
-        $iMode          =   $this->home_model->getActiveMode();
-        //$iMode          =   $this->uri->segment('3');
-        //$sTime          =   date('H:i:s',time());
-        $aAllProgram    =   $this->home_model->getAllProgramsDetails();
-        
-        // die;
-        if(is_array($aAllProgram) && !empty($aAllProgram))
+        if($sDeviceID == '')   
         {
-            foreach($aAllProgram as $aResultProgram)
-            {
-                $sRelayName     = $aResultProgram->relay_number;
-                $iProgId        = $aResultProgram->relay_prog_id;
-                $sProgramType   = $aResultProgram->relay_prog_type;
-                $sProgramStart  = $aResultProgram->relay_start_time;
-                $sProgramEnd    = $aResultProgram->relay_end_time;
-                $sProgramActive = $aResultProgram->relay_prog_active;
-                $sProgramDays   = $aResultProgram->relay_prog_days;
-                
-                $sProgramAbs            = $aResultProgram->relay_prog_absolute;
-                $sProgramAbsStart       = $aResultProgram->relay_prog_absolute_start_time;
-                $sProgramAbsEnd         = $aResultProgram->relay_prog_absolute_end_time;
-                $sProgramAbsTotal       = $aResultProgram->relay_prog_absolute_total_time;
-                $sProgramAbsAlreadyRun  = $aResultProgram->relay_prog_absolute_run_time;
-
-                $sProgramAbsStartDay    = $aResultProgram->relay_prog_absolute_start_date;
-                $sProgramAbsRun         = $aResultProgram->relay_prog_absolute_run;
-
-                $sDays          =   '';
-                $aDays          =   array();
-
-                if($sProgramType == 2)
-                {
-                    $sDays = str_replace('7','0', $sProgramDays);
-                    $aDays = explode(',',$sProgramDays);
-                }
-
-                if($sProgramType == 1 || ($sProgramType == 2 && in_array($sDayret, $aDays)))
-                {
-                    $aAbsoluteDetails       = array('absolute_s'  => $sProgramAbsStart,
-                                                        'absolute_e'  => $sProgramAbsEnd,
-                                                        'absolute_t'  => $sProgramAbsTotal,
-                                                        'absolute_ar' => $sProgramAbsAlreadyRun,
-                                                        'absolute_sd' => $sProgramAbsStartDay,
-                                                        'absolute_st' => $sProgramAbsRun
-                                                        ); 
-
-                    if($sProgramAbs == '1' && $iMode == 1)
-                    {
-                        if($sProgramActive == 0)
-                            $this->home_model->updateProgramAbsDetails($iProgId, $aAbsoluteDetails);
-                        
-                        if($sTime >= $sProgramStart && $sProgramActive == 0 && $sProgramAbsRun == 0)
-                        {
-                            $iRelayStatus = 1;
-                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            onoff_rlb_relay($sRelayNewResp);
-                            $this->home_model->updateProgramStatus($iProgId, 1);
-                        }
-                        else if($sTime >= $sProgramAbsEnd && $sProgramActive == 1)
-                        {
-                            $iRelayStatus = 0;
-                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            onoff_rlb_relay($sRelayNewResp);
-                            $this->home_model->updateProgramStatus($iProgId, 0);
-                            $this->home_model->updateAbsProgramRun($iProgId, '1');
-                        }
-                    }
-                    else if($sProgramAbs == '1' && $iMode == 2)
-                    {
-                        if($sProgramActive == 1)
-                        {
-                            $iRelayStatus = 0;
-                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            onoff_rlb_relay($sRelayNewResp);
-                            $this->home_model->updateProgramStatus($iProgId, 0);
-                            $this->home_model->updateAlreadyRunTime($iProgId, $aAbsoluteDetails);
-                        }
-                    }
-                    else
-                    {
-                        //on relay
-                        if($sTime >= $sProgramStart && $sTime < $sProgramEnd && $sProgramActive == 0)
-                        {
-                            if($iMode == 1)
-                            {
-                                $iRelayStatus = 1;
-                                $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                                onoff_rlb_relay($sRelayNewResp);
-                                $this->home_model->updateProgramStatus($iProgId, 1);
-                            }
-                        }//off relay
-                        else if($sTime >= $sProgramEnd && $sProgramActive == 1)
-                        {
-                            $iRelayStatus = 0;
-                            $sRelayNewResp = replace_return($sRelays, $iRelayStatus, $sRelayName );
-                            onoff_rlb_relay($sRelayNewResp);
-                            $this->home_model->updateProgramStatus($iProgId, 0);
-                        }
-                    } 
-               }
-            }
+            $sDeviceID  =   base64_decode($this->input->post('sDeviceID'));
+            if($sDeviceID == '')
+                redirect(site_url('home/setting/PS/'));
         }
 
+        if($this->input->post('command') == 'Save')
+        {
+            if($this->input->post('sPumpNumber') != '')
+                $sDeviceID   =  $this->input->post('sPumpNumber');
+
+            $this->home_model->savePumpDetails($this->input->post(),$sDeviceID);
+            $aViewParameter['sucess']    =   '1';
+        }
+        $aViewParameter['sDeviceID']    =   $sDeviceID;
+        $aViewParameter['sPumpDetails'] = $this->home_model->getPumpDetails($sDeviceID);
+        $this->load->view('Pump',$aViewParameter); 
     }
 
     public function checkSettingsSaved()
@@ -473,7 +409,7 @@ class Home extends CI_Controller
         
         $this->checkSettingsSaved();
         $sResponse      =   get_rlb_status();
-
+                
         $aViewParameter['response'] =$sResponse['response'];
          
         $this->load->view('Status',$aViewParameter);
