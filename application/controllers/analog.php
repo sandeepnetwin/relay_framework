@@ -38,30 +38,38 @@ class Analog extends CI_Controller
         $sRelays        =   $sResponse['relay'];
         $sPowercenter   =   $sResponse['powercenter'];
         
+        $sPump          =   array($sResponse['pump_seq_0_st'],
+                                  $sResponse['pump_seq_1_st'],
+                                  $sResponse['pump_seq_2_st']);
+
         $aViewParameter['sValves']          =   $sValves;
         $aViewParameter['sRelays']          =   $sRelays;
         $aViewParameter['sPowercenter']     =   $sPowercenter; 
+        $aViewParameter['sPump']            =   $sPump;
 
         $aViewParameter['relay_count']      =   strlen($sRelays);
         $aViewParameter['valve_count']      =   strlen($sValves);
         $aViewParameter['power_count']      =   strlen($sPowercenter);
+        $aViewParameter['pump_count']       =   count($sPump);
+        
 
         if($this->input->post('command') == 'Save')
         {
-             $sDeviceName = $this->input->post('sDeviceName');
-             $this->analog_model->saveAnalogDevice($sDeviceName);
-             $aViewParameter['sucess'] =   '1';
+            $sDeviceName = $this->input->post('sDeviceName');
+            $this->analog_model->saveAnalogDevice($sDeviceName);
+            $aViewParameter['sucess'] =   '1';
         }
 
-        $aAllAnalogDevice   =   $this->analog_model->getAllAnalogDevice();
-
+        $aAllAnalogDevice          = $this->analog_model->getAllAnalogDevice();
+        $aAllANalogDeviceDirection = $this->analog_model->getAllAnalogDeviceDirection();
         
         $aViewParameter['aResponse']    =   array('AP0' => $sResponse['AP0'],
                                                   'AP1' => $sResponse['AP1'],
                                                   'AP2' => $sResponse['AP2'],
                                                   'AP3' => $sResponse['AP3']);
 
-        $aViewParameter['aAllAnalogDevice']  =   $aAllAnalogDevice;  
+        $aViewParameter['aAllAnalogDevice']             =   $aAllAnalogDevice;
+        $aViewParameter['aAllANalogDeviceDirection']    =   $aAllANalogDeviceDirection;  
 
         $this->load->view('Analog',$aViewParameter);
     }
